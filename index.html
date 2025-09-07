@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AABEL - Gestão de Costura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Todo o CSS da aplicação está embutido aqui -->
+    <style>
+        :root {
+            --primary-color: #8B4513; /* SaddleBrown */
+            --secondary-color: #D2B48C; /* Tan */
+            --background-light: #FDF5E6; /* OldLace */
+            --text-light: #3b3b3b;
+            --card-light: #FFFFFF;
+            --border-light: #e0e0e0;
+            --background-dark: #2c2c2c;
+            --text-dark: #f0f0f0;
+            --card-dark: #383838;
+            --border-dark: #555;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        /* Estilos gerais e reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--background-light);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* Tema Escuro */
+        body.dark-mode {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        /* Componentes reutilizáveis */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .page {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+        .btn-secondary:hover {
+            background-color: #c8a97e;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .card {
+            background-color: var(--card-light);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-light);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        body.dark-mode .card {
+            background-color: var(--card-dark);
+            border-color: var(--border-dark);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            background-color: var(--background-light);
+            color: var(--text-light);
+            font-family: var(--font-family);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+            border-color: var(--border-dark);
+            background-color: var(--card-dark);
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* Estilos da Tela de Login/Registo */
+        #authPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+        }
+        .auth-container .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .auth-container .logo img {
+            width: 150px;
+        }
+        .auth-container h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        .auth-form-toggle {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .auth-form-toggle a {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Estilos da Aplicação Principal */
+        #app {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--card-light);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-light);
+            transition: all 0.3s;
+        }
+        body.dark-mode .sidebar {
+            background-color: var(--card-dark);
+            border-right-color: var(--border-dark);
+        }
+        .sidebar .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar .logo img {
+            width: 100px;
+        }
+        .sidebar-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        body.dark-mode .sidebar-menu li a {
+            color: var(--text-dark);
+        }
+        .sidebar-menu li a.active, .sidebar-menu li a:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .main-header h1 {
+            font-size: 2rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Grid para Clientes e Encomendas */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .client-card, .order-card {
+            position: relative;
+            padding: 15px;
+            padding-bottom: 50px; /* Mais espaço para o novo estado */
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .client-card:hover, .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .client-photo, .order-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 10px;
+            border: 3px solid var(--secondary-color);
+        }
+        .order-photo {
+             border-radius: 10px;
+        }
+        .client-card h3, .order-card h3 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        .card-actions button {
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body.dark-mode .card-actions button {
+             background: rgba(0,0,0, 0.5);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .icon-btn svg {
+            stroke: #888;
+            transition: stroke 0.2s;
+        }
+        .icon-btn:hover {
+            background-color: #f0f0f0;
+        }
+        body.dark-mode .icon-btn:hover {
+             background-color: var(--border-dark);
+        }
+        .icon-btn.delete:hover svg {
+            stroke: var(--danger-color);
+        }
+        .icon-btn.edit:hover svg {
+            stroke: var(--primary-color);
+        }
+
+        /* Toggle Senha e Tema */
+        .password-wrapper {
+            position: relative;
+        }
+        .password-wrapper input {
+            padding-right: 45px;
+        }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+            stroke: #888;
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--card-light);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+        body.dark-mode .modal-content {
+            background-color: var(--card-dark);
+        }
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light)
+        }
+        body.dark-mode .close-modal {
+            color: var(--text-dark);
+        }
+
+        /* Notificação (Toast) */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            bottom: 40px;
+        }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--danger-color); }
+        
+        /* Estilos específicos das páginas */
+        #clientDetailsPage .client-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        #clientDetailsPage .client-photo {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        .status-badge.fazer { background-color: var(--info-color); }
+        .status-badge.producao { background-color: var(--warning-color); color: #333; }
+        .status-badge.pronto { background-color: var(--primary-color); }
+        .status-badge.entregue { background-color: var(--success-color); }
+        .payment-badge.pago { background-color: var(--success-color); }
+        .payment-badge.pendente { background-color: var(--danger-color); }
+
+        .client-payment-status {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+            width: max-content;
+        }
+        .client-payment-status.pago { background-color: var(--success-color); }
+        .client-payment-status.pendente { background-color: var(--danger-color); }
+
+        .hamburger-menu {
+            display: none; /* Escondido em desktop */
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .hamburger-menu svg {
+            width: 30px;
+            height: 30px;
+            stroke: var(--primary-color);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            #app {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                height: auto;
+                padding: 10px 20px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-light);
+                position: relative;
+            }
+            body.dark-mode .sidebar {
+                border-bottom-color: var(--border-dark);
+            }
+            .sidebar .logo {
+                display: block; /* Mostrar logo no mobile */
+                margin-bottom: 0;
+            }
+             .sidebar .logo img {
+                width: 60px;
+             }
+             .sidebar .logo h2 {
+                display: none;
+             }
+            .sidebar-menu {
+                display: none; /* Esconder menu por defeito */
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: var(--card-light);
+                flex-direction: column;
+                padding: 10px;
+                border-bottom: 1px solid var(--border-light);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                z-index: 50;
+            }
+            body.dark-mode .sidebar-menu {
+                 background-color: var(--card-dark);
+                 border-bottom-color: var(--border-dark);
+            }
+            .sidebar-menu.mobile-active {
+                display: flex;
+            }
+            .sidebar-menu li a {
+                padding: 12px;
+                justify-content: center;
+            }
+            .hamburger-menu {
+                display: block;
+            }
+            .main-content {
+                padding: 15px;
+            }
+            .main-header h1 {
+                font-size: 1.5rem;
+            }
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PÁGINA DE AUTENTICAÇÃO -->
+    <div id="authPage" class="page">
+        <div class="auth-container">
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjOEI0NTEzIiBzdHJva2U9IiM4QjQ1MTMiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PHBhdGggZD0iTSAyMCAxNSBIIDgwIFYgMjUgSCA3MCBWIDc1IEggODAgViA4NSBIIDU1IEwgNTAgOTUgTCA0NSA4NSBIIDIwIFYgNzUgSCAzMCBWIDI1IEggMjAgViAxNSBaIiBzdHJva2Utd2lkdGg9IjAiLz48ZyBzdHJva2U9IiNGREY1RTUiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTSAzMiAzMCBIIDY4Ii8+PHBhdGggZD0iTSAzMiAzOCBIIDY4Ii8+PHBhdGggZD0iTSAzMiA0NiBIIDY4Ii8+PHBhdGggZD0iTSAzMiA1NCBIIDY4Ii8+PHBhdGggZD0iTSAzMiA2MiBIIDY4Ii8+PHBhdGggZD0iTSAzMiA3MCBIIDY4Ii8+PC9nPjxwYXRoIGQ9Ik0gNzUgMTggQyA5NSA1LCA5NSAzNSwgNzUgNDUgTCA1MCA4OCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTSA4MCAxOCBMIDg4IDEwIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiLz48L2c+PC9zdmc+" alt="AABEL Logo">
+                <h2 style="color: var(--primary-color); margin-top: 5px; font-size: 2.5rem; letter-spacing: 2px;">AABEL</h2>
+            </div>
+            <!-- Formulário de Login -->
+            <div id="loginForm" class="card">
+                <h1>Login</h1>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Senha</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="login-password" required>
+                            <button type="button" class="toggle-password" aria-label="Mostrar senha">
+                                <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg class="eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07l-5.59-5.59M1 1l22 22"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
+                </form>
+                <p class="auth-form-toggle">Não tem uma conta? <a id="showRegister">Registe-se</a></p>
+            </div>
+            <!-- Formulário de Registo -->
+            <div id="registerForm" class="card hidden">
+                <h1>Registo</h1>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-name">Nome</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Senha</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="register-password" required>
+                             <button type="button" class="toggle-password" aria-label="Mostrar senha">
+                                <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg class="eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07l-5.59-5.59M1 1l22 22"></path></svg>
+                            </button>
+                        </div>
+                        <small>Mínimo 8 caracteres, 1 letra e 1 número.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Criar Conta</button>
+                </form>
+                <p class="auth-form-toggle">Já tem uma conta? <a id="showLogin">Faça Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICAÇÃO PRINCIPAL (Após Login) -->
+    <div id="app" class="hidden">
+        <!-- BARRA LATERAL -->
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjOEI0NTEzIiBzdHJva2U9IiM4QjQ1MTMiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCI+PHBhdGggZD0iTSAyMCAxNSBIIDgwIFYgMjUgSCA3MCBWIDc1IEggODAgViA4NSBIIDU1IEwgNTAgOTUgTCA0NSA4NSBIIDIwIFYgNzUgSCAzMCBWIDI1IEggMjAgViAxNSBaIiBzdHJva2Utd2lkdGg9IjAiLz48ZyBzdHJva2U9IiNGREY1RTUiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTSAzMiAzMCBIIDY4Ii8+PHBhdGggZD0iTSAzMiAzOCBIIDY4Ii8+PHBhdGggZD0iTSAzMiA0NiBIIDY4Ii8+PHBhdGggZD0iTSAzMiA1NCBIIDY4Ii8+PHBhdGggZD0iTSAzMiA2MiBIIDY4Ii8+PHBhdGggZD0iTSAzMiA3MCBIIDY4Ii8+PC9nPjxwYXRoIGQ9Ik0gNzUgMTggQyA5NSA1LCA5NSAzNSwgNzUgNDUgTCA1MCA4OCIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTSA4MCAxOCBMIDg4IDEwIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiLz48L2c+PC9zdmc+" alt="AABEL Logo">
+                <h2 style="color: var(--primary-color); font-size: 1.8rem; margin-top: -10px; margin-bottom: 10px; letter-spacing: 1px;">AABEL</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="nav-link active" data-page="clientsPage">Clientes</a></li>
+                <li><a href="#" class="nav-link" data-page="stockPage">Estoque</a></li>
+                <li><a href="#" class="nav-link" data-page="budgetPage">Orçamento Rápido</a></li>
+                <li><a href="#" class="nav-link" data-page="profilePage">Perfil</a></li>
+            </ul>
+            <button class="hamburger-menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <!-- PÁGINA DE CLIENTES -->
+            <div id="clientsPage" class="page">
+                <div class="main-header">
+                    <h1>Meus Clientes</h1>
+                    <button id="addClientBtn" class="btn btn-primary">Adicionar Cliente</button>
+                </div>
+                <div id="clientsGrid" class="grid-container">
+                    <!-- Cards de clientes serão inseridos aqui -->
+                </div>
+            </div>
+
+            <!-- PÁGINA DE DETALHES DO CLIENTE -->
+            <div id="clientDetailsPage" class="page hidden">
+                <button id="backToClientsBtn" class="btn btn-secondary" style="margin-bottom: 20px;">Voltar</button>
+                <div id="clientDetailsHeader" class="client-header card">
+                    <!-- Detalhes do cliente aqui -->
+                </div>
+                <div class="main-header">
+                    <h2>Encomendas</h2>
+                    <button id="addOrderBtn" class="btn btn-primary">Nova Encomenda</button>
+                </div>
+                <div id="ordersGrid" class="grid-container">
+                    <!-- Cards de encomendas do cliente aqui -->
+                </div>
+            </div>
+
+            <!-- PÁGINA DE ESTOQUE -->
+            <div id="stockPage" class="page hidden">
+                 <div class="main-header">
+                    <h1>Estoque de Materiais</h1>
+                    <button id="addStockItemBtn" class="btn btn-primary">Adicionar Material</button>
+                </div>
+                <div class="card">
+                    <table style="width:100%; text-align: left; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding:10px">Material</th>
+                                <th style="padding:10px">Quantidade</th>
+                                <th style="padding:10px">Preço Unit.</th>
+                                <th style="padding:10px">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockTableBody">
+                            <!-- Itens do estoque aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- PÁGINA DE ORÇAMENTO RÁPIDO -->
+            <div id="budgetPage" class="page hidden">
+                <div class="main-header">
+                    <h1>Orçamento Rápido</h1>
+                </div>
+                <div class="card">
+                     <form id="quickBudgetForm">
+                        <div style="display:flex; gap: 10px; margin-bottom: 15px;">
+                            <div class="form-group" style="flex:3">
+                                <label for="budgetItemName">Nome do Material</label>
+                                <input type="text" id="budgetItemName">
+                            </div>
+                             <div class="form-group" style="flex:1">
+                                <label for="budgetItemQty">Qtd</label>
+                                <input type="number" id="budgetItemQty" value="1">
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label for="budgetItemPrice">Preço</label>
+                                <input type="number" id="budgetItemPrice" step="0.01">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Adicionar Item</button>
+                    </form>
+                    <hr style="margin: 20px 0; border: 1px solid var(--border-light);">
+                    <h3>Itens do Orçamento</h3>
+                    <ul id="budgetItemsList" style="list-style: none; margin-top:10px;"></ul>
+                    <h2 style="margin-top: 20px;">Total: <span id="budgetTotal">Kz 0,00</span></h2>
+                    <button id="saveBudgetBtn" class="btn btn-primary" style="margin-top:20px;">Salvar Orçamento</button>
+                    <button id="clearBudgetBtn" class="btn btn-danger" style="margin-top:20px;">Limpar</button>
+                </div>
+                <div class="main-header" style="margin-top: 30px;">
+                    <h2>Orçamentos Salvos</h2>
+                </div>
+                <div id="savedBudgetsContainer" class="card">
+                    <!-- Orçamentos salvos serão listados aqui -->
+                </div>
+            </div>
+
+            <!-- PÁGINA DE PERFIL -->
+            <div id="profilePage" class="page hidden">
+                 <div class="main-header">
+                    <h1>Perfil</h1>
+                </div>
+                <div class="card">
+                    <form id="profileForm">
+                        <div class="form-group" style="text-align: center;">
+                             <img id="profile-photo-preview" class="client-photo" src="https://placehold.co/100x100/D2B48C/8B4513?text=A" alt="Foto de Perfil" style="margin-bottom: 10px; cursor: pointer;">
+                             <input type="file" id="profile-photo" accept="image/*" class="hidden">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-name">Nome</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-email">Email</label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <hr style="margin: 20px 0; border: 1px solid var(--border-light);">
+                        <h3>Alterar Senha</h3>
+                        <div class="form-group">
+                            <label for="profile-new-password">Nova Senha (deixe em branco para não alterar)</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="profile-new-password">
+                                <button type="button" class="toggle-password" aria-label="Mostrar senha">
+                                    <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07l-5.59-5.59M1 1l22 22"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </form>
+                    <hr style="margin: 20px 0; border: 1px solid var(--border-light);">
+                     <div class="header-actions">
+                        <div class="theme-switch-wrapper">
+                            <span>Modo Escuro</span>
+                            <label class="theme-switch">
+                                <input type="checkbox" id="theme-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button id="logoutBtn" class="btn btn-danger">Sair</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAIS -->
+    <!-- Modal Cliente -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="clientModalTitle">Adicionar Cliente</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <div class="form-group">
+                    <label for="clientName">Nome</label>
+                    <input type="text" id="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientContact">Contacto</label>
+                    <input type="text" id="clientContact" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientPhoto">Foto</label>
+                    <input type="file" id="clientPhoto" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="clientNotes">Outros Campos (ex: morada, medidas)</label>
+                    <textarea id="clientNotes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Encomenda -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="orderModalTitle">Nova Encomenda</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="orderForm">
+                <input type="hidden" id="orderId">
+                <div class="form-group">
+                    <label for="orderName">Nome da Encomenda</label>
+                    <input type="text" id="orderName" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderPhoto">Imagem Sugestiva</label>
+                    <input type="file" id="orderPhoto" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="orderMeasures">Medidas</label>
+                    <textarea id="orderMeasures" rows="4"></textarea>
+                </div>
+                 <div class="form-group">
+                    <label for="orderCreationDate">Data da Encomenda</label>
+                    <input type="date" id="orderCreationDate" required>
+                </div>
+                 <div class="form-group">
+                    <label for="orderDeadline">Data Limite</label>
+                    <input type="date" id="orderDeadline">
+                </div>
+                <div class="form-group">
+                    <label for="orderStatus">Estado</label>
+                    <select id="orderStatus">
+                        <option value="producao">Em produção</option>
+                        <option value="pronto">Pronto</option>
+                        <option value="entregue">Entregue</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="orderPayment">Pagamento</label>
+                    <select id="orderPayment">
+                        <option value="pendente">Pendente</option>
+                        <option value="pago">Pago</option>
+                    </select>
+                </div>
+                 <hr style="margin: 20px 0; border: 1px solid var(--border-light);">
+                <h3>Materiais Utilizados</h3>
+                <div id="orderMaterialsList"></div>
+                <div style="display:flex; gap:10px; align-items: flex-end; margin-top:10px;">
+                    <input type="text" id="materialName" placeholder="Nome do material">
+                    <input type="number" id="materialQty" placeholder="Qtd" style="width: 80px;">
+                    <input type="number" id="materialPrice" placeholder="Preço" step="0.01" style="width: 100px;">
+                    <button type="button" id="addMaterialToOrderBtn" class="btn btn-secondary">Add</button>
+                </div>
+                <h4 style="margin-top:15px;">Custo Total Estimado: <span id="orderTotalCost">Kz 0,00</span></h4>
+                <button type="submit" class="btn btn-primary" style="margin-top:20px;">Salvar Encomenda</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Estoque -->
+    <div id="stockModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="stockModalTitle">Adicionar ao Estoque</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="stockForm">
+                <input type="hidden" id="stockItemId">
+                <div class="form-group">
+                    <label for="stockItemName">Nome do Material</label>
+                    <input type="text" id="stockItemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="stockItemQty">Quantidade</label>
+                    <input type="number" id="stockItemQty" required>
+                </div>
+                <div class="form-group">
+                    <label for="stockItemUnit">Unidade (m, un, etc.)</label>
+                    <input type="text" id="stockItemUnit">
+                </div>
+                <div class="form-group">
+                    <label for="stockItemPrice">Preço Estimado (unitário)</label>
+                    <input type="number" id="stockItemPrice" step="0.01">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="stockItemToBuy" style="width: auto; margin-right: 10px;">
+                    <label for="stockItemToBuy">Marcar como "a comprar"</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Elemento de Notificação (Toast) -->
+    <div id="toast" class="toast"></div>
+
+    <!-- TODO O JAVASCRIPT DA APLICAÇÃO ESTÁ AQUI -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Seletores de Elementos Globais
+            const authPage = document.getElementById('authPage');
+            const appPage = document.getElementById('app');
+            const mainContent = document.querySelector('.main-content');
+            const toast = document.getElementById('toast');
+            
+            // Estado da Aplicação
+            let state = {
+                currentUser: null,
+                clients: [],
+                stock: [],
+                savedBudgets: [],
+                currentClient: null,
+                currentOrderMaterials: []
+            };
+
+            // Funções de Utilidade
+            const generateId = () => `id_${new Date().getTime()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            const showToast = (message, type = 'success') => {
+                toast.textContent = message;
+                toast.className = `toast show ${type}`;
+                setTimeout(() => {
+                    toast.className = 'toast';
+                }, 3000);
+            };
+
+            const fileToBase64 = (file) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value || 0);
+            };
+
+            const formatDate = (dateString) => {
+                if (!dateString) return 'N/A';
+                const [year, month, day] = dateString.split('-');
+                return `${day}-${month}-${year}`;
+            };
+
+            // Gerenciamento de Dados (LocalStorage)
+            const saveData = () => {
+                localStorage.setItem('aabel_data', JSON.stringify({
+                    users: JSON.parse(localStorage.getItem('aabel_data') || '{}').users || {},
+                    clients: state.clients,
+                    stock: state.stock,
+                    savedBudgets: state.savedBudgets
+                }));
+            };
+
+            const loadData = () => {
+                const data = JSON.parse(localStorage.getItem('aabel_data') || '{}');
+                if (state.currentUser) {
+                    state.clients = (data.clients || []).filter(c => c.owner === state.currentUser.email);
+                    state.stock = (data.stock || []).filter(s => s.owner === state.currentUser.email);
+                    state.savedBudgets = (data.savedBudgets || []).filter(b => b.owner === state.currentUser.email);
+                }
+            };
+            
+            const loadTheme = () => {
+                const theme = state.currentUser?.theme || 'light';
+                document.body.classList.toggle('dark-mode', theme === 'dark');
+                const themeToggle = document.getElementById('theme-toggle');
+                if(themeToggle) themeToggle.checked = theme === 'dark';
+            }
+
+            // Lógica de Navegação
+            const navigateTo = (pageId, param = null) => {
+                document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+                document.getElementById(pageId).classList.remove('hidden');
+
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.dataset.page === pageId) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Lógica específica da página
+                if (pageId === 'clientsPage') renderClients();
+                if (pageId === 'clientDetailsPage') {
+                    state.currentClient = state.clients.find(c => c.id === param);
+                    renderClientDetails();
+                    renderOrders();
+                }
+                if (pageId === 'stockPage') renderStock();
+                if (pageId === 'budgetPage') renderSavedBudgets();
+                if (pageId === 'profilePage') renderProfile();
+            };
+
+            // Lógica de Autenticação
+            const checkLogin = () => {
+                const user = JSON.parse(localStorage.getItem('aabel_user'));
+                if (user) {
+                    state.currentUser = user;
+                    authPage.classList.add('hidden');
+                    appPage.classList.remove('hidden');
+                    loadData();
+                    loadTheme();
+                    navigateTo('clientsPage');
+                } else {
+                    authPage.classList.remove('hidden');
+                    appPage.classList.add('hidden');
+                }
+            };
+            
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                const data = JSON.parse(localStorage.getItem('aabel_data') || '{}');
+                const users = data.users || {};
+
+                if (users[email] && users[email].password === password) {
+                    localStorage.setItem('aabel_user', JSON.stringify(users[email]));
+                    checkLogin();
+                } else {
+                    showToast('Email ou senha inválidos.', 'error');
+                }
+            });
+
+            document.getElementById('register-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+
+                // Validação da senha
+                if (password.length < 8 || !/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+                    showToast('Senha inválida. Use os critérios informados.', 'error');
+                    return;
+                }
+                
+                const data = JSON.parse(localStorage.getItem('aabel_data') || '{}');
+                const users = data.users || {};
+
+                if (users[email]) {
+                    showToast('Este email já está registado.', 'error');
+                    return;
+                }
+
+                users[email] = { name, email, password, photo: null, theme: 'light' };
+                localStorage.setItem('aabel_data', JSON.stringify({...data, users}));
+                showToast('Conta criada com sucesso! Faça o login.');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('aabel_user');
+                state.currentUser = null;
+                checkLogin();
+            });
+
+            document.getElementById('showRegister').addEventListener('click', () => {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            });
+            document.getElementById('showLogin').addEventListener('click', () => {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            });
+            
+            // Lógica de Modais
+            const openModal = (modalId) => document.getElementById(modalId).classList.add('open');
+            const closeModal = (modalId) => document.getElementById(modalId).classList.remove('open');
+            document.querySelectorAll('.modal .close-modal').forEach(btn => {
+                btn.addEventListener('click', () => btn.closest('.modal').classList.remove('open'));
+            });
+
+            // Lógica de Clientes
+            const renderClients = () => {
+                const grid = document.getElementById('clientsGrid');
+                grid.innerHTML = '';
+                if(state.clients.length === 0){
+                    grid.innerHTML = '<p>Nenhum cliente adicionado ainda.</p>';
+                    return;
+                }
+                state.clients.forEach(client => {
+                    const card = document.createElement('div');
+                    card.className = 'card client-card';
+                    card.dataset.id = client.id;
+
+                    // Verifica se o cliente tem pagamentos pendentes
+                    const hasPendingPayments = client.orders && client.orders.some(order => order.payment === 'pendente');
+                    let paymentStatusHtml = '';
+                    if (hasPendingPayments) {
+                        paymentStatusHtml = `<div class="client-payment-status pendente">Encomendas por pagar</div>`;
+                    } else {
+                        paymentStatusHtml = `<div class="client-payment-status pago">Nada por pagar</div>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="card-actions">
+                            <button class="icon-btn edit edit-client-btn" data-id="${client.id}" title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                            <button class="icon-btn delete delete-client-btn" data-id="${client.id}" title="Excluir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        </div>
+                        <img class="client-photo" src="${client.photo || 'https://placehold.co/80x80/D2B48C/8B4513?text=' + client.name[0]}" alt="Foto do Cliente">
+                        <h3>${client.name}</h3>
+                        <p>${client.contact}</p>
+                        ${paymentStatusHtml}
+                    `;
+                    card.addEventListener('click', (e) => {
+                       if(!e.target.closest('button')) navigateTo('clientDetailsPage', client.id);
+                    });
+                    grid.appendChild(card);
+                });
+            };
+
+            document.getElementById('addClientBtn').addEventListener('click', () => {
+                document.getElementById('clientForm').reset();
+                document.getElementById('clientId').value = '';
+                document.getElementById('clientModalTitle').textContent = 'Adicionar Cliente';
+                openModal('clientModal');
+            });
+            
+            document.getElementById('clientForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('clientId').value;
+                const name = document.getElementById('clientName').value;
+                const contact = document.getElementById('clientContact').value;
+                const notes = document.getElementById('clientNotes').value;
+                const photoFile = document.getElementById('clientPhoto').files[0];
+
+                if (id) { // Editando
+                    const client = state.clients.find(c => c.id === id);
+                    client.name = name;
+                    client.contact = contact;
+                    client.notes = notes;
+                    if(photoFile) client.photo = await fileToBase64(photoFile);
+                } else { // Criando
+                    let photo = null;
+                    if(photoFile) photo = await fileToBase64(photoFile);
+                    state.clients.push({ id: generateId(), owner: state.currentUser.email, name, contact, notes, photo, orders: [] });
+                }
+                saveData();
+                renderClients();
+                closeModal('clientModal');
+                showToast(`Cliente ${id ? 'atualizado' : 'adicionado'} com sucesso!`);
+            });
+
+            document.getElementById('clientsGrid').addEventListener('click', e => {
+                const editBtn = e.target.closest('.edit-client-btn');
+                if (editBtn) {
+                    const id = editBtn.dataset.id;
+                    const client = state.clients.find(c => c.id === id);
+                    document.getElementById('clientId').value = client.id;
+                    document.getElementById('clientName').value = client.name;
+                    document.getElementById('clientContact').value = client.contact;
+                    document.getElementById('clientNotes').value = client.notes;
+                    document.getElementById('clientModalTitle').textContent = 'Editar Cliente';
+                    openModal('clientModal');
+                }
+                
+                const deleteBtn = e.target.closest('.delete-client-btn');
+                if (deleteBtn) {
+                    if (confirm('Tem a certeza que deseja excluir este cliente e todas as suas encomendas?')) {
+                        const id = deleteBtn.dataset.id;
+                        state.clients = state.clients.filter(c => c.id !== id);
+                        saveData();
+                        renderClients();
+                        showToast('Cliente excluído.', 'success');
+                    }
+                }
+            });
+            
+            // Lógica de Detalhes do Cliente e Encomendas
+            const renderClientDetails = () => {
+                if (!state.currentClient) return;
+                const header = document.getElementById('clientDetailsHeader');
+                header.innerHTML = `
+                     <img class="client-photo" src="${state.currentClient.photo || 'https://placehold.co/100x100/D2B48C/8B4513?text=' + state.currentClient.name[0]}" alt="Foto do Cliente">
+                    <div>
+                        <h2>${state.currentClient.name}</h2>
+                        <p>${state.currentClient.contact}</p>
+                        <p>${state.currentClient.notes || ''}</p>
+                    </div>
+                `;
+            };
+
+            const renderOrders = () => {
+                if (!state.currentClient) return;
+                const grid = document.getElementById('ordersGrid');
+                grid.innerHTML = '';
+                const orders = state.currentClient.orders || [];
+                if(orders.length === 0){
+                    grid.innerHTML = '<p>Nenhuma encomenda para este cliente.</p>';
+                    return;
+                }
+                orders.forEach(order => {
+                    const card = document.createElement('div');
+                    card.className = 'card order-card';
+                    card.innerHTML = `
+                         <div class="card-actions">
+                            <button class="icon-btn edit edit-order-btn" data-id="${order.id}" title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                            <button class="icon-btn delete delete-order-btn" data-id="${order.id}" title="Excluir">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        </div>
+                        <img class="order-photo" src="${order.photo || 'https://placehold.co/80x80/D2B48C/8B4513?text=🧵'}" alt="Foto da Encomenda">
+                        <h3>${order.name}</h3>
+                        <p>Encomendado em: ${formatDate(order.orderDate)}</p>
+                        <p>Limite: ${formatDate(order.deadline)}</p>
+                        <span class="status-badge ${order.status}">${order.status.replace('producao', 'produção')}</span>
+                        <span class="status-badge payment-badge ${order.payment}">${order.payment}</span>
+                    `;
+                    card.querySelector('.edit-order-btn').addEventListener('click', () => editOrder(order.id));
+                    card.querySelector('.delete-order-btn').addEventListener('click', () => deleteOrder(order.id));
+                    grid.appendChild(card);
+                });
+            };
+
+            document.getElementById('addOrderBtn').addEventListener('click', () => {
+                document.getElementById('orderForm').reset();
+                document.getElementById('orderId').value = '';
+                document.getElementById('orderModalTitle').textContent = 'Nova Encomenda';
+                // Set current date for new order
+                document.getElementById('orderCreationDate').value = new Date().toISOString().split('T')[0];
+                state.currentOrderMaterials = [];
+                renderOrderMaterials();
+                openModal('orderModal');
+            });
+            
+            document.getElementById('orderForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('orderId').value;
+                const orderData = {
+                    name: document.getElementById('orderName').value,
+                    measures: document.getElementById('orderMeasures').value,
+                    orderDate: document.getElementById('orderCreationDate').value,
+                    deadline: document.getElementById('orderDeadline').value,
+                    status: document.getElementById('orderStatus').value,
+                    payment: document.getElementById('orderPayment').value,
+                    creationTimestamp: new Date().toISOString(),
+                    materials: state.currentOrderMaterials
+                };
+                const photoFile = document.getElementById('orderPhoto').files[0];
+                if(photoFile) orderData.photo = await fileToBase64(photoFile);
+
+                if(id){
+                    const orderIndex = state.currentClient.orders.findIndex(o => o.id === id);
+                    const oldPhoto = state.currentClient.orders[orderIndex].photo;
+                    state.currentClient.orders[orderIndex] = { ...state.currentClient.orders[orderIndex], ...orderData, photo: orderData.photo || oldPhoto };
+                } else {
+                    state.currentClient.orders.push({ id: generateId(), ...orderData });
+                }
+                saveData();
+                renderOrders();
+                closeModal('orderModal');
+                showToast(`Encomenda ${id ? 'atualizada' : 'adicionada'} com sucesso!`);
+            });
+
+            const editOrder = (orderId) => {
+                const order = state.currentClient.orders.find(o => o.id === orderId);
+                document.getElementById('orderId').value = order.id;
+                document.getElementById('orderName').value = order.name;
+                document.getElementById('orderMeasures').value = order.measures;
+                document.getElementById('orderCreationDate').value = order.orderDate;
+                document.getElementById('orderDeadline').value = order.deadline;
+                document.getElementById('orderStatus').value = order.status;
+                document.getElementById('orderPayment').value = order.payment;
+                state.currentOrderMaterials = [...order.materials] || [];
+                renderOrderMaterials();
+                document.getElementById('orderModalTitle').textContent = 'Editar Encomenda';
+                openModal('orderModal');
+            };
+
+            const deleteOrder = (orderId) => {
+                 if (confirm('Tem a certeza que deseja excluir esta encomenda?')) {
+                    state.currentClient.orders = state.currentClient.orders.filter(o => o.id !== orderId);
+                    saveData();
+                    renderOrders();
+                    showToast('Encomenda excluída.', 'success');
+                }
+            };
+            
+            document.getElementById('addMaterialToOrderBtn').addEventListener('click', () => {
+                const name = document.getElementById('materialName').value;
+                const qty = parseFloat(document.getElementById('materialQty').value);
+                const price = parseFloat(document.getElementById('materialPrice').value);
+                if(name && qty > 0 && price >= 0) {
+                    state.currentOrderMaterials.push({name, qty, price});
+                    renderOrderMaterials();
+                    document.getElementById('materialName').value = '';
+                    document.getElementById('materialQty').value = '';
+                    document.getElementById('materialPrice').value = '';
+                }
+            });
+            
+            const renderOrderMaterials = () => {
+                const list = document.getElementById('orderMaterialsList');
+                list.innerHTML = '';
+                let totalCost = 0;
+                state.currentOrderMaterials.forEach((mat, index) => {
+                    list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom: 1px solid var(--border-light);">
+                        <span>${mat.qty}x ${mat.name} (${formatCurrency(mat.price)})</span>
+                        <button type="button" class="delete-material-btn" data-index="${index}" style="background:none; border:none; cursor:pointer; color:var(--danger-color)">✖</button>
+                    </div>`;
+                    totalCost += (mat.qty * mat.price);
+                });
+                document.getElementById('orderTotalCost').textContent = formatCurrency(totalCost);
+                
+                document.querySelectorAll('.delete-material-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        state.currentOrderMaterials.splice(e.target.dataset.index, 1);
+                        renderOrderMaterials();
+                    });
+                });
+            };
+
+            // Lógica de Estoque
+            const renderStock = () => {
+                const tbody = document.getElementById('stockTableBody');
+                tbody.innerHTML = '';
+                if(state.stock.length === 0){
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Nenhum material em estoque.</td></tr>';
+                    return;
+                }
+                state.stock.forEach(item => {
+                    const row = document.createElement('tr');
+                    if(item.toBuy) row.style.backgroundColor = 'var(--secondary-color)';
+                    row.innerHTML = `
+                        <td style="padding:10px">${item.name} ${item.toBuy ? '<b>(A Comprar)</b>': ''}</td>
+                        <td style="padding:10px">${item.qty} ${item.unit || ''}</td>
+                        <td style="padding:10px">${formatCurrency(item.price)}</td>
+                        <td style="padding:10px">
+                            <button class="icon-btn edit edit-stock-btn" data-id="${item.id}" title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                            <button class="icon-btn delete delete-stock-btn" data-id="${item.id}" title="Excluir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        </td>
+                    `;
+                     row.querySelector('.edit-stock-btn').addEventListener('click', () => editStockItem(item.id));
+                     row.querySelector('.delete-stock-btn').addEventListener('click', () => deleteStockItem(item.id));
+                    tbody.appendChild(row);
+                });
+            };
+
+            document.getElementById('addStockItemBtn').addEventListener('click', () => {
+                document.getElementById('stockForm').reset();
+                document.getElementById('stockItemId').value = '';
+                document.getElementById('stockModalTitle').textContent = 'Adicionar ao Estoque';
+                openModal('stockModal');
+            });
+
+            document.getElementById('stockForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('stockItemId').value;
+                const itemData = {
+                    name: document.getElementById('stockItemName').value,
+                    qty: parseFloat(document.getElementById('stockItemQty').value),
+                    unit: document.getElementById('stockItemUnit').value,
+                    price: parseFloat(document.getElementById('stockItemPrice').value),
+                    toBuy: document.getElementById('stockItemToBuy').checked,
+                };
+
+                if (id) {
+                    const itemIndex = state.stock.findIndex(i => i.id === id);
+                    state.stock[itemIndex] = {...state.stock[itemIndex], ...itemData};
+                } else {
+                    state.stock.push({id: generateId(), owner: state.currentUser.email, ...itemData});
+                }
+                saveData();
+                renderStock();
+                closeModal('stockModal');
+                showToast(`Item ${id ? 'atualizado' : 'adicionado'} no estoque.`);
+            });
+            
+            const editStockItem = (id) => {
+                const item = state.stock.find(i => i.id === id);
+                document.getElementById('stockItemId').value = item.id;
+                document.getElementById('stockItemName').value = item.name;
+                document.getElementById('stockItemQty').value = item.qty;
+                document.getElementById('stockItemUnit').value = item.unit;
+                document.getElementById('stockItemPrice').value = item.price;
+                document.getElementById('stockItemToBuy').checked = item.toBuy;
+                document.getElementById('stockModalTitle').textContent = 'Editar Item do Estoque';
+                openModal('stockModal');
+            };
+            
+            const deleteStockItem = (id) => {
+                if (confirm('Tem a certeza que deseja excluir este item do estoque?')) {
+                    state.stock = state.stock.filter(i => i.id !== id);
+                    saveData();
+                    renderStock();
+                    showToast('Item excluído do estoque.', 'success');
+                }
+            };
+            
+            // Lógica do Orçamento Rápido
+            let budgetItems = [];
+            
+            const renderBudgetItems = () => {
+                const list = document.getElementById('budgetItemsList');
+                list.innerHTML = '';
+                let total = 0;
+                 budgetItems.forEach((item, index) => {
+                    list.innerHTML += `<li style="display:flex; justify-content:space-between; padding:5px 0;">
+                        <span>${item.qty}x ${item.name} - ${formatCurrency(item.price * item.qty)}</span>
+                        <button class="delete-budget-item" data-index="${index}" style="background:none; border:none; cursor:pointer; color: var(--danger-color)">✖</button>
+                    </li>`;
+                    total += item.price * item.qty;
+                 });
+                 document.getElementById('budgetTotal').textContent = formatCurrency(total);
+                 
+                 document.querySelectorAll('.delete-budget-item').forEach(btn => {
+                     btn.addEventListener('click', (e) => {
+                         budgetItems.splice(e.target.dataset.index, 1);
+                         renderBudgetItems();
+                     })
+                 })
+            };
+
+            const renderSavedBudgets = () => {
+                const container = document.getElementById('savedBudgetsContainer');
+                container.innerHTML = '';
+                if (!state.savedBudgets || state.savedBudgets.length === 0) {
+                    container.innerHTML = '<p>Nenhum orçamento salvo ainda.</p>';
+                    return;
+                }
+
+                const list = document.createElement('ul');
+                list.style.listStyle = 'none';
+                
+                state.savedBudgets.forEach(budget => {
+                    const item = document.createElement('li');
+                    item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom: 1px solid var(--border-light);';
+                    
+                    item.innerHTML = `
+                        <div>
+                            <strong>${budget.title}</strong><br>
+                            <small>Salvo em: ${new Date(budget.date).toLocaleDateString()} - Total: ${formatCurrency(budget.total)}</small>
+                        </div>
+                        <div>
+                            <button class="load-budget-btn btn btn-secondary" data-id="${budget.id}" style="padding: 5px 10px; font-size: 0.9rem; margin-right: 5px;">Carregar</button>
+                            <button class="icon-btn delete delete-budget-btn" data-id="${budget.id}" title="Excluir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+                container.appendChild(list);
+            };
+            
+            document.getElementById('savedBudgetsContainer').addEventListener('click', (e) => {
+                const loadBtn = e.target.closest('.load-budget-btn');
+                if (loadBtn) {
+                    const id = loadBtn.dataset.id;
+                    const budget = state.savedBudgets.find(b => b.id === id);
+                    if (budget) {
+                        budgetItems = [...budget.items]; // Cria uma cópia para evitar alteração direta
+                        renderBudgetItems();
+                        showToast('Orçamento carregado para edição.');
+                        window.scrollTo(0, 0); // Rola para o topo da página
+                    }
+                }
+
+                const deleteBtn = e.target.closest('.delete-budget-btn');
+                if (deleteBtn) {
+                    if (confirm('Tem a certeza que deseja excluir este orçamento salvo?')) {
+                        const id = deleteBtn.dataset.id;
+                        state.savedBudgets = state.savedBudgets.filter(b => b.id !== id);
+                        saveData();
+                        renderSavedBudgets();
+                        showToast('Orçamento excluído.');
+                    }
+                }
+            });
+            
+            document.getElementById('quickBudgetForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('budgetItemName').value;
+                const qty = parseFloat(document.getElementById('budgetItemQty').value);
+                const price = parseFloat(document.getElementById('budgetItemPrice').value);
+                
+                if (name && qty > 0 && price >= 0) {
+                    budgetItems.push({ name, qty, price });
+                    renderBudgetItems();
+                    e.target.reset();
+                    document.getElementById('budgetItemName').focus();
+                }
+            });
+
+            document.getElementById('clearBudgetBtn').addEventListener('click', () => {
+                budgetItems = [];
+                renderBudgetItems();
+            });
+
+            document.getElementById('saveBudgetBtn').addEventListener('click', () => {
+                if (budgetItems.length === 0) {
+                    showToast('Adicione itens ao orçamento antes de salvar.', 'error');
+                    return;
+                }
+                
+                const title = prompt('Digite um título para este orçamento:');
+                
+                if (title) {
+                    const total = budgetItems.reduce((acc, item) => acc + (item.qty * item.price), 0);
+                    const newBudget = {
+                        id: generateId(),
+                        owner: state.currentUser.email,
+                        title: title,
+                        items: budgetItems,
+                        total: total,
+                        date: new Date().toISOString()
+                    };
+                    
+                    if (!state.savedBudgets) state.savedBudgets = [];
+                    state.savedBudgets.push(newBudget);
+                    saveData();
+                    renderSavedBudgets();
+                    
+                    budgetItems = [];
+                    renderBudgetItems();
+                    
+                    showToast('Orçamento salvo com sucesso!');
+                }
+            });
+            
+            // Lógica do Perfil e Tema
+            const renderProfile = () => {
+                if (!state.currentUser) return;
+                document.getElementById('profile-name').value = state.currentUser.name;
+                document.getElementById('profile-email').value = state.currentUser.email;
+                document.getElementById('profile-photo-preview').src = state.currentUser.photo || 'https://placehold.co/100x100/D2B48C/8B4513?text=A';
+                document.getElementById('profile-new-password').value = '';
+            };
+            
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('profile-name').value;
+                const email = document.getElementById('profile-email').value; // Note: changing email might be complex, here we assume it's just a data field.
+                const newPassword = document.getElementById('profile-new-password').value;
+                const photoFile = document.getElementById('profile-photo').files[0];
+                
+                let updatedUser = { ...state.currentUser, name, email };
+                
+                if (newPassword) {
+                    if (newPassword.length < 8 || !/\d/.test(newPassword) || !/[a-zA-Z]/.test(newPassword)) {
+                        showToast('Nova senha inválida. Use os critérios informados.', 'error');
+                        return;
+                    }
+                    updatedUser.password = newPassword;
+                }
+                if (photoFile) {
+                    updatedUser.photo = await fileToBase64(photoFile);
+                }
+                
+                const data = JSON.parse(localStorage.getItem('aabel_data') || '{}');
+                data.users[state.currentUser.email] = updatedUser; // Use old email as key
+                
+                // If email changed, we need to update the key
+                if (email !== state.currentUser.email) {
+                    data.users[email] = updatedUser;
+                    delete data.users[state.currentUser.email];
+                }
+                
+                localStorage.setItem('aabel_data', JSON.stringify(data));
+                localStorage.setItem('aabel_user', JSON.stringify(updatedUser));
+                state.currentUser = updatedUser;
+                showToast('Perfil atualizado com sucesso!');
+                renderProfile();
+            });
+            
+            document.getElementById('profile-photo-preview').addEventListener('click', () => {
+                document.getElementById('profile-photo').click();
+            });
+            document.getElementById('profile-photo').addEventListener('change', async (e) => {
+                if (e.target.files && e.target.files[0]) {
+                   const b64 = await fileToBase64(e.target.files[0]);
+                   document.getElementById('profile-photo-preview').src = b64;
+                }
+            });
+            
+            document.getElementById('theme-toggle').addEventListener('change', (e) => {
+                const isDark = e.target.checked;
+                state.currentUser.theme = isDark ? 'dark' : 'light';
+                const data = JSON.parse(localStorage.getItem('aabel_data') || '{}');
+                data.users[state.currentUser.email].theme = state.currentUser.theme;
+                localStorage.setItem('aabel_data', JSON.stringify(data));
+                localStorage.setItem('aabel_user', JSON.stringify(state.currentUser));
+                loadTheme();
+            });
+
+
+            // Event Listeners de Navegação Principal
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navigateTo(e.target.dataset.page);
+                    // Esconder menu mobile ao clicar num link
+                    const menu = document.querySelector('.sidebar-menu');
+                    if (menu.classList.contains('mobile-active')) {
+                        menu.classList.remove('mobile-active');
+                    }
+                });
+            });
+            document.getElementById('backToClientsBtn').addEventListener('click', () => navigateTo('clientsPage'));
+
+            // Lógica do menu hamburguer
+            document.querySelector('.hamburger-menu').addEventListener('click', () => {
+                document.querySelector('.sidebar-menu').classList.toggle('mobile-active');
+            });
+
+            // Lógica para mostrar/esconder senha
+            document.body.addEventListener('click', (e) => {
+                const toggleBtn = e.target.closest('.toggle-password');
+                if (!toggleBtn) return;
+                
+                const wrapper = toggleBtn.closest('.password-wrapper');
+                const input = wrapper.querySelector('input');
+                const eyeOpen = toggleBtn.querySelector('.eye-open');
+                const eyeClosed = toggleBtn.querySelector('.eye-closed');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    eyeOpen.classList.add('hidden');
+                    eyeClosed.classList.remove('hidden');
+                } else {
+                    input.type = 'password';
+                    eyeOpen.classList.remove('hidden');
+                    eyeClosed.classList.add('hidden');
+                }
+            });
+
+            // Inicialização
+            checkLogin();
+        });
+    </script>
+</body>
+</html>
