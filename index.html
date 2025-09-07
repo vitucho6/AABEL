@@ -264,7 +264,7 @@
         .client-card, .order-card {
             position: relative;
             padding: 15px;
-            padding-bottom: 50px; /* Mais espaço para o novo estado */
+            padding-bottom: 55px; /* Espaço extra para o estado de pagamento */
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -519,6 +519,24 @@
         .status-badge.entregue { background-color: var(--success-color); }
         .payment-badge.pago { background-color: var(--success-color); }
         .payment-badge.pendente { background-color: var(--danger-color); }
+
+        .order-card .payment-details {
+            font-size: 0.9rem;
+            text-align: left;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-light);
+        }
+        body.dark-mode .order-card .payment-details {
+            border-top-color: var(--border-dark);
+        }
+        .payment-details p {
+            margin-bottom: 5px;
+        }
+        .payment-details .pending-amount {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
 
         .client-payment-status {
             position: absolute;
@@ -859,8 +877,8 @@
                     <input type="file" id="clientPhoto" accept="image/*">
                 </div>
                 <div class="form-group">
-                    <label for="clientNotes">Outros Campos (ex: morada, medidas)</label>
-                    <textarea id="clientNotes" rows="3"></textarea>
+                    <label for="clientAddress">Endereço</label>
+                    <textarea id="clientAddress" rows="3"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Salvar</button>
             </form>
@@ -904,23 +922,15 @@
                         <option value="entregue">Entregue</option>
                     </select>
                 </div>
+                <hr style="margin: 20px 0; border: 1px solid var(--border-light);">
                 <div class="form-group">
-                    <label for="orderPayment">Pagamento</label>
-                    <select id="orderPayment">
-                        <option value="pendente">Pendente</option>
-                        <option value="pago">Pago</option>
-                    </select>
+                    <label for="orderTotalValue">Valor Total da Encomenda</label>
+                    <input type="number" id="orderTotalValue" step="0.01" placeholder="Ex: 15000">
                 </div>
-                 <hr style="margin: 20px 0; border: 1px solid var(--border-light);">
-                <h3>Materiais Utilizados</h3>
-                <div id="orderMaterialsList"></div>
-                <div style="display:flex; gap:10px; align-items: flex-end; margin-top:10px;">
-                    <input type="text" id="materialName" placeholder="Nome do material">
-                    <input type="number" id="materialQty" placeholder="Qtd" style="width: 80px;">
-                    <input type="number" id="materialPrice" placeholder="Preço" step="0.01" style="width: 100px;">
-                    <button type="button" id="addMaterialToOrderBtn" class="btn btn-secondary">Add</button>
+                <div class="form-group">
+                    <label for="orderAmountPaid">Valor Pago pelo Cliente</label>
+                    <input type="number" id="orderAmountPaid" step="0.01" placeholder="Ex: 5000">
                 </div>
-                <h4 style="margin-top:15px;">Custo Total Estimado: <span id="orderTotalCost">Kz 0,00</span></h4>
                 <button type="submit" class="btn btn-primary" style="margin-top:20px;">Salvar Encomenda</button>
             </form>
         </div>
@@ -980,7 +990,6 @@
                 stock: [],
                 savedBudgets: [],
                 currentClient: null,
-                currentOrderMaterials: []
             };
 
             // Funções de Utilidade
@@ -1156,7 +1165,7 @@
                     card.dataset.id = client.id;
 
                     // Verifica se o cliente tem pagamentos pendentes
-                    const hasPendingPayments = client.orders && client.orders.some(order => order.payment === 'pendente');
+                    const hasPendingPayments = client.orders && client.orders.some(order => (order.totalValue || 0) > (order.amountPaid || 0));
                     let paymentStatusHtml = '';
                     if (hasPendingPayments) {
                         paymentStatusHtml = `<div class="client-payment-status pendente">Encomendas por pagar</div>`;
@@ -1197,19 +1206,19 @@
                 const id = document.getElementById('clientId').value;
                 const name = document.getElementById('clientName').value;
                 const contact = document.getElementById('clientContact').value;
-                const notes = document.getElementById('clientNotes').value;
+                const address = document.getElementById('clientAddress').value;
                 const photoFile = document.getElementById('clientPhoto').files[0];
 
                 if (id) { // Editando
                     const client = state.clients.find(c => c.id === id);
                     client.name = name;
                     client.contact = contact;
-                    client.notes = notes;
+                    client.address = address;
                     if(photoFile) client.photo = await fileToBase64(photoFile);
                 } else { // Criando
                     let photo = null;
                     if(photoFile) photo = await fileToBase64(photoFile);
-                    state.clients.push({ id: generateId(), owner: state.currentUser.email, name, contact, notes, photo, orders: [] });
+                    state.clients.push({ id: generateId(), owner: state.currentUser.email, name, contact, address, photo, orders: [] });
                 }
                 saveData();
                 renderClients();
@@ -1225,7 +1234,7 @@
                     document.getElementById('clientId').value = client.id;
                     document.getElementById('clientName').value = client.name;
                     document.getElementById('clientContact').value = client.contact;
-                    document.getElementById('clientNotes').value = client.notes;
+                    document.getElementById('clientAddress').value = client.address;
                     document.getElementById('clientModalTitle').textContent = 'Editar Cliente';
                     openModal('clientModal');
                 }
@@ -1251,7 +1260,7 @@
                     <div>
                         <h2>${state.currentClient.name}</h2>
                         <p>${state.currentClient.contact}</p>
-                        <p>${state.currentClient.notes || ''}</p>
+                        <p>${state.currentClient.address || ''}</p>
                     </div>
                 `;
             };
@@ -1268,6 +1277,32 @@
                 orders.forEach(order => {
                     const card = document.createElement('div');
                     card.className = 'card order-card';
+
+                    const totalValue = order.totalValue || 0;
+                    const amountPaid = order.amountPaid || 0;
+                    const remainingAmount = totalValue - amountPaid;
+
+                    let paymentStatusText = 'Pendente';
+                    let paymentStatusClass = 'pendente';
+
+                    if (totalValue > 0 && remainingAmount <= 0) {
+                        paymentStatusText = 'Pago';
+                        paymentStatusClass = 'pago';
+                    } else if (amountPaid > 0 && remainingAmount > 0) {
+                        paymentStatusText = 'Parcial';
+                        paymentStatusClass = 'producao'; // Usa a cor de "em produção" (amarelo)
+                    }
+                    
+                    let paymentDetailsHtml = `
+                        <div class="payment-details">
+                            <p><strong>Valor Total:</strong> ${formatCurrency(totalValue)}</p>
+                            <p><strong>Valor Pago:</strong> ${formatCurrency(amountPaid)}</p>
+                    `;
+                    if (remainingAmount > 0) {
+                        paymentDetailsHtml += `<p class="pending-amount"><strong>Falta Pagar:</strong> ${formatCurrency(remainingAmount)}</p>`;
+                    }
+                    paymentDetailsHtml += `</div>`;
+
                     card.innerHTML = `
                          <div class="card-actions">
                             <button class="icon-btn edit edit-order-btn" data-id="${order.id}" title="Editar">
@@ -1282,7 +1317,8 @@
                         <p>Encomendado em: ${formatDate(order.orderDate)}</p>
                         <p>Limite: ${formatDate(order.deadline)}</p>
                         <span class="status-badge ${order.status}">${order.status.replace('producao', 'produção')}</span>
-                        <span class="status-badge payment-badge ${order.payment}">${order.payment}</span>
+                        <span class="status-badge payment-badge ${paymentStatusClass}">${paymentStatusText}</span>
+                        ${paymentDetailsHtml}
                     `;
                     card.querySelector('.edit-order-btn').addEventListener('click', () => editOrder(order.id));
                     card.querySelector('.delete-order-btn').addEventListener('click', () => deleteOrder(order.id));
@@ -1296,8 +1332,6 @@
                 document.getElementById('orderModalTitle').textContent = 'Nova Encomenda';
                 // Set current date for new order
                 document.getElementById('orderCreationDate').value = new Date().toISOString().split('T')[0];
-                state.currentOrderMaterials = [];
-                renderOrderMaterials();
                 openModal('orderModal');
             });
             
@@ -1310,9 +1344,9 @@
                     orderDate: document.getElementById('orderCreationDate').value,
                     deadline: document.getElementById('orderDeadline').value,
                     status: document.getElementById('orderStatus').value,
-                    payment: document.getElementById('orderPayment').value,
-                    creationTimestamp: new Date().toISOString(),
-                    materials: state.currentOrderMaterials
+                    totalValue: parseFloat(document.getElementById('orderTotalValue').value) || 0,
+                    amountPaid: parseFloat(document.getElementById('orderAmountPaid').value) || 0,
+                    creationTimestamp: new Date().toISOString()
                 };
                 const photoFile = document.getElementById('orderPhoto').files[0];
                 if(photoFile) orderData.photo = await fileToBase64(photoFile);
@@ -1338,9 +1372,8 @@
                 document.getElementById('orderCreationDate').value = order.orderDate;
                 document.getElementById('orderDeadline').value = order.deadline;
                 document.getElementById('orderStatus').value = order.status;
-                document.getElementById('orderPayment').value = order.payment;
-                state.currentOrderMaterials = [...order.materials] || [];
-                renderOrderMaterials();
+                document.getElementById('orderTotalValue').value = order.totalValue || '';
+                document.getElementById('orderAmountPaid').value = order.amountPaid || '';
                 document.getElementById('orderModalTitle').textContent = 'Editar Encomenda';
                 openModal('orderModal');
             };
@@ -1354,40 +1387,6 @@
                 }
             };
             
-            document.getElementById('addMaterialToOrderBtn').addEventListener('click', () => {
-                const name = document.getElementById('materialName').value;
-                const qty = parseFloat(document.getElementById('materialQty').value);
-                const price = parseFloat(document.getElementById('materialPrice').value);
-                if(name && qty > 0 && price >= 0) {
-                    state.currentOrderMaterials.push({name, qty, price});
-                    renderOrderMaterials();
-                    document.getElementById('materialName').value = '';
-                    document.getElementById('materialQty').value = '';
-                    document.getElementById('materialPrice').value = '';
-                }
-            });
-            
-            const renderOrderMaterials = () => {
-                const list = document.getElementById('orderMaterialsList');
-                list.innerHTML = '';
-                let totalCost = 0;
-                state.currentOrderMaterials.forEach((mat, index) => {
-                    list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom: 1px solid var(--border-light);">
-                        <span>${mat.qty}x ${mat.name} (${formatCurrency(mat.price)})</span>
-                        <button type="button" class="delete-material-btn" data-index="${index}" style="background:none; border:none; cursor:pointer; color:var(--danger-color)">✖</button>
-                    </div>`;
-                    totalCost += (mat.qty * mat.price);
-                });
-                document.getElementById('orderTotalCost').textContent = formatCurrency(totalCost);
-                
-                document.querySelectorAll('.delete-material-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        state.currentOrderMaterials.splice(e.target.dataset.index, 1);
-                        renderOrderMaterials();
-                    });
-                });
-            };
-
             // Lógica de Estoque
             const renderStock = () => {
                 const tbody = document.getElementById('stockTableBody');
