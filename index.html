@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Chart.js para o Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- Todo o CSS da aplicação está embutido aqui -->
     <style>
         :root {
@@ -33,6 +36,12 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        button {
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* Standard syntax */
         }
 
         html, body {
@@ -260,6 +269,29 @@
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
         }
+
+        .dashboard-stats {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
+
+        .stat-card {
+            padding: 25px;
+        }
+
+        .stat-card h3 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        body.dark-mode .stat-card h3 {
+            color: #bbb;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
 
         .client-card, .order-card {
             position: relative;
@@ -705,23 +737,72 @@
                 <h2 style="color: var(--primary-color); font-size: 1.8rem; margin-top: -10px; margin-bottom: 10px; letter-spacing: 1px;">AABEL</h2>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="#" class="nav-link active" data-page="clientsPage">Clientes</a></li>
-                <li><a href="#" class="nav-link" data-page="stockPage">Estoque</a></li>
-                <li><a href="#" class="nav-link" data-page="budgetPage">Orçamento Rápido</a></li>
-                <li><a href="#" class="nav-link" data-page="profilePage">Perfil</a></li>
+                <li><a href="#" class="nav-link active" data-page="dashboardPage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+                    <span>Dashboard</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-page="clientsPage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span>Clientes</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-page="galleryPage">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    <span>Galeria</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-page="stockPage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    <span>Estoque</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-page="budgetPage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l-4-4h8l-4 4z"></path><path d="M12 14l-4-4h8l-4 4z" transform="rotate(180 12 12)"></path></svg>
+                    <span>Orçamento Rápido</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-page="profilePage">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>Perfil</span>
+                </a></li>
             </ul>
-            <button class="hamburger-menu">
+            <button type="button" class="hamburger-menu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
         </aside>
 
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="main-content">
+            <!-- PÁGINA DE DASHBOARD -->
+            <div id="dashboardPage" class="page">
+                 <div class="main-header">
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="grid-container dashboard-stats">
+                    <div class="card stat-card">
+                        <h3>Total Faturado</h3>
+                        <div id="totalRevenue" class="value">Kz 0,00</div>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Pagamentos Pendentes</h3>
+                        <div id="pendingPayments" class="value">Kz 0,00</div>
+                    </div>
+                     <div class="card stat-card">
+                        <h3>Total de Clientes</h3>
+                        <div id="totalClients" class="value">0</div>
+                    </div>
+                     <div class="card stat-card">
+                        <h3>Encomendas Concluídas</h3>
+                        <div id="completedOrders" class="value">0</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 30px;">
+                    <h2>Receita Mensal (Últimos 12 meses)</h2>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
             <!-- PÁGINA DE CLIENTES -->
-            <div id="clientsPage" class="page">
+            <div id="clientsPage" class="page hidden">
                 <div class="main-header">
                     <h1>Meus Clientes</h1>
-                    <button id="addClientBtn" class="btn btn-primary">Adicionar Cliente</button>
+                    <button id="addClientBtn" type="button" class="btn btn-primary">Adicionar Cliente</button>
                 </div>
                 <div id="clientsGrid" class="grid-container">
                     <!-- Cards de clientes serão inseridos aqui -->
@@ -730,16 +811,26 @@
 
             <!-- PÁGINA DE DETALHES DO CLIENTE -->
             <div id="clientDetailsPage" class="page hidden">
-                <button id="backToClientsBtn" class="btn btn-secondary" style="margin-bottom: 20px;">Voltar</button>
+                <button id="backToClientsBtn" type="button" class="btn btn-secondary" style="margin-bottom: 20px;">Voltar</button>
                 <div id="clientDetailsHeader" class="client-header card">
                     <!-- Detalhes do cliente aqui -->
                 </div>
                 <div class="main-header">
                     <h2>Encomendas</h2>
-                    <button id="addOrderBtn" class="btn btn-primary">Nova Encomenda</button>
+                    <button id="addOrderBtn" type="button" class="btn btn-primary">Nova Encomenda</button>
                 </div>
                 <div id="ordersGrid" class="grid-container">
                     <!-- Cards de encomendas do cliente aqui -->
+                </div>
+            </div>
+
+            <!-- PÁGINA DA GALERIA -->
+            <div id="galleryPage" class="page hidden">
+                <div class="main-header">
+                    <h1>Galeria de Trabalhos</h1>
+                </div>
+                <div id="galleryGrid" class="grid-container">
+                    <!-- Imagens da galeria serão inseridas aqui -->
                 </div>
             </div>
 
@@ -747,7 +838,7 @@
             <div id="stockPage" class="page hidden">
                  <div class="main-header">
                     <h1>Estoque de Materiais</h1>
-                    <button id="addStockItemBtn" class="btn btn-primary">Adicionar Material</button>
+                    <button id="addStockItemBtn" type="button" class="btn btn-primary">Adicionar Material</button>
                 </div>
                 <div class="card">
                     <table style="width:100%; text-align: left; border-collapse: collapse;">
@@ -793,8 +884,8 @@
                     <h3>Itens do Orçamento</h3>
                     <ul id="budgetItemsList" style="list-style: none; margin-top:10px;"></ul>
                     <h2 style="margin-top: 20px;">Total: <span id="budgetTotal">Kz 0,00</span></h2>
-                    <button id="saveBudgetBtn" class="btn btn-primary" style="margin-top:20px;">Salvar Orçamento</button>
-                    <button id="clearBudgetBtn" class="btn btn-danger" style="margin-top:20px;">Limpar</button>
+                    <button id="saveBudgetBtn" type="button" class="btn btn-primary" style="margin-top:20px;">Salvar Orçamento</button>
+                    <button id="clearBudgetBtn" type="button" class="btn btn-danger" style="margin-top:20px;">Limpar</button>
                 </div>
                 <div class="main-header" style="margin-top: 30px;">
                     <h2>Orçamentos Salvos</h2>
@@ -846,7 +937,17 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <button id="logoutBtn" class="btn btn-danger">Sair</button>
+                        <button id="logoutBtn" type="button" class="btn btn-danger">Sair</button>
+                    </div>
+                    <hr style="margin: 20px 0; border: 1px solid var(--border-light);">
+                    <div class="backup-section">
+                        <h2>Backup e Restauro de Dados</h2>
+                        <p style="margin-bottom: 15px; font-size: 0.9rem;">Guarde os seus dados num ficheiro para segurança ou para transferir para outro dispositivo.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="exportDataBtn" type="button" class="btn btn-secondary">Exportar Dados</button>
+                            <button id="importDataBtn" type="button" class="btn btn-primary">Importar Dados</button>
+                            <input type="file" id="importDataInput" class="hidden" accept=".json">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -860,7 +961,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="clientModalTitle">Adicionar Cliente</h2>
-                <button class="close-modal">&times;</button>
+                <button type="button" class="close-modal">&times;</button>
             </div>
             <form id="clientForm">
                 <input type="hidden" id="clientId">
@@ -890,7 +991,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="orderModalTitle">Nova Encomenda</h2>
-                <button class="close-modal">&times;</button>
+                <button type="button" class="close-modal">&times;</button>
             </div>
             <form id="orderForm">
                 <input type="hidden" id="orderId">
@@ -941,7 +1042,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="stockModalTitle">Adicionar ao Estoque</h2>
-                <button class="close-modal">&times;</button>
+                <button type="button" class="close-modal">&times;</button>
             </div>
             <form id="stockForm">
                 <input type="hidden" id="stockItemId">
@@ -1049,7 +1150,13 @@
             // Lógica de Navegação
             const navigateTo = (pageId, param = null) => {
                 document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-                document.getElementById(pageId).classList.remove('hidden');
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                } else {
+                    console.error(`Navigation error: Page with id "${pageId}" not found.`);
+                    return; // Stop execution if page doesn't exist
+                }
 
                 document.querySelectorAll('.nav-link').forEach(link => {
                     link.classList.remove('active');
@@ -1059,7 +1166,9 @@
                 });
                 
                 // Lógica específica da página
+                if (pageId === 'dashboardPage') renderDashboard();
                 if (pageId === 'clientsPage') renderClients();
+                if (pageId === 'galleryPage') renderGallery();
                 if (pageId === 'clientDetailsPage') {
                     state.currentClient = state.clients.find(c => c.id === param);
                     renderClientDetails();
@@ -1079,7 +1188,7 @@
                     appPage.classList.remove('hidden');
                     loadData();
                     loadTheme();
-                    navigateTo('clientsPage');
+                    navigateTo('dashboardPage');
                 } else {
                     authPage.classList.remove('hidden');
                     appPage.classList.add('hidden');
@@ -1175,10 +1284,10 @@
 
                     card.innerHTML = `
                         <div class="card-actions">
-                            <button class="icon-btn edit edit-client-btn" data-id="${client.id}" title="Editar">
+                            <button type="button" class="icon-btn edit edit-client-btn" data-id="${client.id}" title="Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             </button>
-                            <button class="icon-btn delete delete-client-btn" data-id="${client.id}" title="Excluir">
+                            <button type="button" class="icon-btn delete delete-client-btn" data-id="${client.id}" title="Excluir">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
@@ -1302,13 +1411,23 @@
                         paymentDetailsHtml += `<p class="pending-amount"><strong>Falta Pagar:</strong> ${formatCurrency(remainingAmount)}</p>`;
                     }
                     paymentDetailsHtml += `</div>`;
+                    
+                    let galleryBtnHtml = '';
+                    if (order.status === 'entregue') {
+                        galleryBtnHtml = `
+                            <button type="button" class="icon-btn add-to-gallery-btn" data-id="${order.id}" title="${order.isInGallery ? 'Remover da Galeria' : 'Adicionar à Galeria'}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="${order.isInGallery ? 'var(--warning-color)' : 'none'}" stroke="var(--warning-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            </button>
+                        `;
+                    }
 
                     card.innerHTML = `
                          <div class="card-actions">
-                            <button class="icon-btn edit edit-order-btn" data-id="${order.id}" title="Editar">
+                            ${galleryBtnHtml}
+                            <button type="button" class="icon-btn edit edit-order-btn" data-id="${order.id}" title="Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             </button>
-                            <button class="icon-btn delete delete-order-btn" data-id="${order.id}" title="Excluir">
+                            <button type="button" class="icon-btn delete delete-order-btn" data-id="${order.id}" title="Excluir">
                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
@@ -1322,6 +1441,10 @@
                     `;
                     card.querySelector('.edit-order-btn').addEventListener('click', () => editOrder(order.id));
                     card.querySelector('.delete-order-btn').addEventListener('click', () => deleteOrder(order.id));
+                    const galleryBtn = card.querySelector('.add-to-gallery-btn');
+                    if (galleryBtn) {
+                        galleryBtn.addEventListener('click', () => toggleGalleryStatus(order.id));
+                    }
                     grid.appendChild(card);
                 });
             };
@@ -1386,6 +1509,16 @@
                     showToast('Encomenda excluída.', 'success');
                 }
             };
+
+            const toggleGalleryStatus = (orderId) => {
+                const order = state.currentClient.orders.find(o => o.id === orderId);
+                if (order) {
+                    order.isInGallery = !order.isInGallery;
+                    saveData();
+                    renderOrders();
+                    showToast(order.isInGallery ? 'Adicionado à galeria!' : 'Removido da galeria.');
+                }
+            };
             
             // Lógica de Estoque
             const renderStock = () => {
@@ -1403,10 +1536,10 @@
                         <td style="padding:10px">${item.qty} ${item.unit || ''}</td>
                         <td style="padding:10px">${formatCurrency(item.price)}</td>
                         <td style="padding:10px">
-                            <button class="icon-btn edit edit-stock-btn" data-id="${item.id}" title="Editar">
+                            <button type="button" class="icon-btn edit edit-stock-btn" data-id="${item.id}" title="Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             </button>
-                            <button class="icon-btn delete delete-stock-btn" data-id="${item.id}" title="Excluir">
+                            <button type="button" class="icon-btn delete delete-stock-btn" data-id="${item.id}" title="Excluir">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </td>
@@ -1468,6 +1601,110 @@
                 }
             };
             
+            // Lógica do Dashboard
+            let revenueChart = null;
+            const renderDashboard = () => {
+                let totalRevenue = 0;
+                let pendingPayments = 0;
+                let completedOrders = 0;
+                const monthlyRevenue = {};
+
+                const today = new Date();
+                for (let i = 0; i < 12; i++) {
+                    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    monthlyRevenue[monthKey] = 0;
+                }
+
+                state.clients.forEach(client => {
+                    (client.orders || []).forEach(order => {
+                        const orderTotal = order.totalValue || 0;
+                        totalRevenue += order.amountPaid || 0;
+                        const pending = orderTotal - (order.amountPaid || 0);
+                        if (pending > 0) {
+                            pendingPayments += pending;
+                        }
+                        if (order.status === 'entregue') {
+                            completedOrders++;
+                            const orderDate = new Date(order.orderDate);
+                            const monthKey = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
+                            if (monthlyRevenue.hasOwnProperty(monthKey)) {
+                                monthlyRevenue[monthKey] += orderTotal;
+                            }
+                        }
+                    });
+                });
+
+                document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+                document.getElementById('pendingPayments').textContent = formatCurrency(pendingPayments);
+                document.getElementById('totalClients').textContent = state.clients.length;
+                document.getElementById('completedOrders').textContent = completedOrders;
+
+                const chartLabels = Object.keys(monthlyRevenue).reverse();
+                const chartData = Object.values(monthlyRevenue).reverse();
+
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                
+                if(revenueChart) {
+                    revenueChart.destroy();
+                }
+
+                revenueChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartLabels.map(l => new Date(l + '-02').toLocaleString('default', { month: 'short', year: '2-digit' })),
+                        datasets: [{
+                            label: 'Receita Mensal',
+                            data: chartData,
+                            backgroundColor: 'rgba(139, 69, 19, 0.7)',
+                            borderColor: 'rgba(139, 69, 19, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Lógica da Galeria
+            const renderGallery = () => {
+                const grid = document.getElementById('galleryGrid');
+                grid.innerHTML = '';
+                const galleryItems = [];
+
+                state.clients.forEach(client => {
+                    (client.orders || []).forEach(order => {
+                        if(order.isInGallery) {
+                            galleryItems.push(order);
+                        }
+                    });
+                });
+
+                if (galleryItems.length === 0) {
+                    grid.innerHTML = '<p>Nenhum trabalho adicionado à galeria ainda. Adicione encomendas entregues a partir da página do cliente.</p>';
+                    return;
+                }
+                
+                galleryItems.sort((a, b) => new Date(b.creationTimestamp) - new Date(a.creationTimestamp));
+
+                galleryItems.forEach(order => {
+                    const card = document.createElement('div');
+                    card.className = 'card order-card';
+                    card.innerHTML = `
+                         <img class="order-photo" src="${order.photo || 'https://placehold.co/280x280/D2B48C/8B4513?text=🧵'}" alt="Foto da Encomenda">
+                        <h3>${order.name}</h3>
+                    `;
+                    grid.appendChild(card);
+                });
+            };
+
             // Lógica do Orçamento Rápido
             let budgetItems = [];
             
@@ -1478,7 +1715,7 @@
                  budgetItems.forEach((item, index) => {
                     list.innerHTML += `<li style="display:flex; justify-content:space-between; padding:5px 0;">
                         <span>${item.qty}x ${item.name} - ${formatCurrency(item.price * item.qty)}</span>
-                        <button class="delete-budget-item" data-index="${index}" style="background:none; border:none; cursor:pointer; color: var(--danger-color)">✖</button>
+                        <button type="button" class="delete-budget-item" data-index="${index}" style="background:none; border:none; cursor:pointer; color: var(--danger-color)">✖</button>
                     </li>`;
                     total += item.price * item.qty;
                  });
@@ -1513,8 +1750,8 @@
                             <small>Salvo em: ${new Date(budget.date).toLocaleDateString()} - Total: ${formatCurrency(budget.total)}</small>
                         </div>
                         <div>
-                            <button class="load-budget-btn btn btn-secondary" data-id="${budget.id}" style="padding: 5px 10px; font-size: 0.9rem; margin-right: 5px;">Carregar</button>
-                            <button class="icon-btn delete delete-budget-btn" data-id="${budget.id}" title="Excluir">
+                            <button type="button" class="load-budget-btn btn btn-secondary" data-id="${budget.id}" style="padding: 5px 10px; font-size: 0.9rem; margin-right: 5px;">Carregar</button>
+                            <button type="button" class="icon-btn delete delete-budget-btn" data-id="${budget.id}" title="Excluir">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                             </button>
                         </div>
@@ -1647,6 +1884,7 @@
             document.getElementById('profile-photo-preview').addEventListener('click', () => {
                 document.getElementById('profile-photo').click();
             });
+
             document.getElementById('profile-photo').addEventListener('change', async (e) => {
                 if (e.target.files && e.target.files[0]) {
                    const b64 = await fileToBase64(e.target.files[0]);
@@ -1664,12 +1902,73 @@
                 loadTheme();
             });
 
+            // Lógica de Backup e Restauro
+            document.getElementById('exportDataBtn').addEventListener('click', () => {
+                const dataToExport = {
+                    clients: state.clients,
+                    stock: state.stock,
+                    savedBudgets: state.savedBudgets
+                };
+                const dataStr = JSON.stringify(dataToExport, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `aabel_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Backup exportado com sucesso!');
+            });
+            
+            document.getElementById('importDataBtn').addEventListener('click', () => {
+                document.getElementById('importDataInput').click();
+            });
+
+            document.getElementById('importDataInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        if (Array.isArray(importedData.clients) && Array.isArray(importedData.stock) && Array.isArray(importedData.savedBudgets)) {
+                            if (confirm('Atenção! Isto irá substituir todos os seus dados atuais. Deseja continuar?')) {
+                                // Garante que os dados importados pertencem ao utilizador atual
+                                const ownerEmail = state.currentUser.email;
+                                importedData.clients.forEach(c => c.owner = ownerEmail);
+                                importedData.stock.forEach(s => s.owner = ownerEmail);
+                                importedData.savedBudgets.forEach(b => b.owner = ownerEmail);
+
+                                state.clients = importedData.clients;
+                                state.stock = importedData.stock;
+                                state.savedBudgets = importedData.savedBudgets;
+                                
+                                saveData();
+                                loadData();
+                                navigateTo('dashboardPage');
+                                showToast('Dados importados com sucesso!');
+                            }
+                        } else {
+                            showToast('Ficheiro de backup inválido.', 'error');
+                        }
+                    } catch (err) {
+                        showToast('Erro ao ler o ficheiro de backup.', 'error');
+                    } finally {
+                        // Limpa o input para permitir importar o mesmo ficheiro novamente
+                        e.target.value = '';
+                    }
+                };
+                reader.readAsText(file);
+            });
 
             // Event Listeners de Navegação Principal
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    navigateTo(e.target.dataset.page);
+                    navigateTo(e.currentTarget.dataset.page);
                     // Esconder menu mobile ao clicar num link
                     const menu = document.querySelector('.sidebar-menu');
                     if (menu.classList.contains('mobile-active')) {
@@ -1711,3 +2010,4 @@
     </script>
 </body>
 </html>
+
